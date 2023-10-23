@@ -1,0 +1,109 @@
+class Solution {
+public:
+    int largestMagicSquare(vector<vector<int>>& grid) {
+        //prefix sum for rows, cols & both diagonals
+        vector<vector<int>> rowSum(grid),colSum(grid), diagSum1(grid), diagSum2(grid);
+        
+        int rows = grid.size();
+        int cols = grid[0].size();
+
+        //calculating prefix row sum for every element 
+        for(int i=0; i<rows; i++)
+            for(int j=0; j<cols; j++)
+                if(j-1 >= 0)
+                    rowSum[i][j] += rowSum[i][j-1];
+
+        //calculating prefix col sum for every element
+        for(int j=0; j<cols; j++)
+            for(int i=0; i<rows; i++)
+                if(i-1>=0)
+                    colSum[i][j] += colSum[i-1][j];
+        
+        //calculating prefix diagonal1 sum for every element
+        for(int i=0; i<rows; i++)
+            for(int j=0; j<cols; j++)
+                if(i-1>=0 && j-1>=0)
+                    diagSum1[i][j] += diagSum1[i-1][j-1];
+
+        //calculating prefix diagonal2 sum for every element
+        for(int i=0; i<rows; i++)
+            for(int j=cols-1; j>=0; j--)
+                if(i-1>=0 && j+1<cols)
+                    diagSum2[i][j] += diagSum2[i-1][j+1];
+
+        //searching for largest magic square, so max value possible is minimum of rows and column (if 4*3 matrix, max value for square matrix is 3*3)
+        int k = min(rows,cols);
+
+        //will go from k to 2 and on getting the magic square, we will return k
+        while(k>1)
+        {
+            //choosing indices of the very first element for k*k matrix 
+            for(int i=0; i<=rows-k; i++)
+            {
+                for(int j=0; j<=cols-k; j++)
+                {
+                    //calculating sum for first row for chosen square matrix, we will use this for checking all rows sum, cols sum, diagonals sum
+                    int sum = rowSum[i][j+k-1];
+                    if(j>0)
+                        sum -= rowSum[i][j-1];
+
+                    int tempSum;
+                    int flag = 0; //flag for skipping the outer loop iteration
+
+                    //checking if sum of all rows are equal
+                    for(int r=i+1; r<=i+k-1; r++)
+                    {
+                        tempSum = rowSum[r][j+k-1];
+                        if(j>0)
+                            tempSum -= rowSum[r][j-1];
+
+                        if(tempSum != sum)
+                            flag = 1;
+                        
+                    }
+                    if(flag)
+                        continue;
+
+                    //checking if sum of all cols are equal
+                    for(int c=j; c<=j+k-1; c++)
+                    {
+                        tempSum = colSum[i+k-1][c];
+                        if(i>0)
+                            tempSum -= colSum[i-1][c];  
+
+                        if(tempSum != sum)
+                            flag = 1;
+                    }
+
+                    if(flag)
+                        continue;
+
+                    //checking if sum of diagonal1 is equal
+                    tempSum = diagSum1[i+k-1][j+k-1];
+                    if(i>0 && j>0)
+                        tempSum -= diagSum1[i-1][j-1];
+                    
+                    if(tempSum != sum)
+                        continue;
+
+                    //checking if sum of diagonal1 is equal
+                    tempSum = diagSum2[i+k-1][j];
+                    if(i>0 && j+k-1<cols-1 )
+                        tempSum -= diagSum2[i-1][j+k];
+
+                    if(tempSum != sum)
+                        continue;
+                    
+                    //found magic square, hence return k
+                    return k;
+                }
+            }
+
+            k--;
+        }
+
+
+        return 1;
+
+    }
+};
