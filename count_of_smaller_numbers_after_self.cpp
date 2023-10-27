@@ -28,12 +28,12 @@ public:
 
     void update(int index, int val) {
         updateST(index, val, 1, 0, n - 1);
-        arr[index] = val;
+        arr[index] += val;
     }
 
     void updateST(int index, int val, int node, int l, int r) {
         if (l == r) {
-            st[node] = val;
+            st[node] += val;
             return;
         }
 
@@ -63,9 +63,26 @@ public:
     }
 };
 
-/**
- * Your NumArray object will be instantiated and called as such:
- * NumArray* obj = new NumArray(nums);
- * obj->update(index,val);
- * int param_2 = obj->sumRange(left,right);
- */
+class Solution {
+public:
+    vector<int> countSmaller(vector<int>& nums) {
+        int min = nums[0], max = nums[0], n = nums.size();
+        for(int i = 1; i < n; ++i) {
+            if(nums[i] > max) max = nums[i];
+            if(nums[i] < min) min = nums[i];
+        }
+
+        vector<int> arr(max - min + 1, 0);
+        NumArray* obj = new NumArray(arr);
+
+        vector<int> res(n, 0);
+        for(int i = n - 1; i >= 0; --i) {
+            int idxST = nums[i] - min;
+
+            res[i] = obj->sumRange(0, idxST - 1);
+            obj->update(idxST, 1);
+        }
+
+        return res;
+    }
+};
