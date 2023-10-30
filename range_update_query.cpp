@@ -1,4 +1,4 @@
-#include<iostream>
+#include<vector>
 #include<climits>
 
 using namespace std;
@@ -81,11 +81,11 @@ private:
     void updateUtil(int node, int l, int r, int ql, int qr, ll val) {
         if(ql > r || qr < l) return;
         if(ql <= l && qr >= r) {
-            st[node].lzAdd = val;
-
             st[node].sum += ((r - l + 1) * val);
             st[node].max += val;
             st[node].min += val;
+
+            st[node].lzAdd += val;
 
             return;
         }
@@ -110,7 +110,10 @@ public:
         st[node].lzAdd = 0;
 
         if(l == r) {
-            st[node].sum = st[node].max = st[node].min = arr[l];
+            st[node].sum = arr[l];
+            st[node].min = arr[l];
+            st[node].max = arr[l];
+
             return;
         }
 
@@ -122,36 +125,11 @@ public:
         pushUp(node);
     }
 
-    void update(int ql, int qr, ll sum) {
-        return updateUtil(1, 0, n - 1, ql, qr, sum);
+    void update(int ql, int qr, ll val) {
+        return updateUtil(1, 0, n - 1, ql, qr, val);
     }
 
     QueryResult query(int ql, int qr) {
         return queryUtil(1, 0, n - 1, ql, qr);
     }
-
-    void printQuery(int ql, int qr, const QueryResult& r) {
-        cout << "===================" << endl;
-        printf("sum range [%d, %d] = %lld\n", ql, qr, r.sum);
-        printf("max range [%d, %d] = %lld\n", ql, qr, r.max);
-        printf("min range [%d, %d] = %lld\n", ql, qr, r.min);
-        cout << "===================" << endl;
-    }
 };
-
-int main() {
-    vector<int> v = {2, 2, 4, 8, 10, 4, 2, 8};
-
-    LazySegmentTree *obj = new LazySegmentTree(v);
-
-    obj->printQuery(0, 7, obj->query(0, 7));
-    obj->update(0, 7, 5);
-    obj->printQuery(0, 7, obj->query(0, 7));
-    obj->printQuery(2, 5, obj->query(2, 5));
-    obj->printQuery(2, 2, obj->query(2, 2));
-    obj->update(2, 2, 10);
-    obj->printQuery(2, 2, obj->query(2, 2));
-    obj->printQuery(0, 7, obj->query(0, 7));
-
-    return 0;
-}
